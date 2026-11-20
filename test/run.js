@@ -26,6 +26,10 @@ section('物理系统');
   for (let i = 0; i < 60; i++) Ph.step(balls);
   ok(Math.abs(a.vx) < 0.4 && b.vx > 3, '对心碰撞后白球减速、目标球获得速度');
   ok(b.x > 400 + Ph.BALL_R * 2, '碰撞后球体分离');
+  const coincidentA = Ph.makeBall(0, 700, 250), coincidentB = Ph.makeBall(1, 700, 250);
+  Ph.step([coincidentA, coincidentB]);
+  ok(Math.hypot(coincidentB.x - coincidentA.x, coincidentB.y - coincidentA.y) >= Ph.BALL_R * 2 - 0.01,
+    '完全重合的球也能确定性分离');
 }
 {
   // 库边反弹：保持在桌面内
