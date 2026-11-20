@@ -134,11 +134,14 @@
       out.foul = '白球落袋';
     } else if (s.firstContact === null) {
       out.foul = '未击中任何球';
-    } else if (match.breakDone && me.group) {
-      const onEight = activeCount(balls, me.group) === 0;
-      const legal = onEight ? [8] : legalTargets(balls, match, meIdx);
-      if (legal.length && legal.indexOf(s.firstContact) === -1)
-        out.foul = onEight ? '应首先击打黑8' : '首先碰到了对方的球';
+    } else if (match.breakDone) {
+      const onEight = !!me.group && activeCount(balls, me.group) === 0;
+      const legal = legalTargets(balls, match, meIdx);
+      if (legal.length && legal.indexOf(s.firstContact) === -1) {
+        out.foul = onEight ? '应首先击打黑8'
+          : !me.group && s.firstContact === 8 ? '开放球桌不能首先击打黑8'
+          : '首先碰到了对方的球';
+      }
     }
 
     const objectPotted = s.potted.filter(id => id !== 0);
