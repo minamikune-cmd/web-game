@@ -118,8 +118,12 @@
         if (!c.active) continue;
         const dx = c.x - a.x, dy = c.y - a.y;
         const d = Math.hypot(dx, dy), min = a.r + c.r;
-        if (d >= min || d === 0) continue;
-        const nx = dx / d, ny = dy / d, overlap = (min - d) / 2;
+        if (d >= min) continue;
+        // Exact center overlap has no geometric normal; choose a stable axis so
+        // malformed/degenerate states are separated instead of remaining stuck.
+        const nx = d === 0 ? (a.id < c.id ? 1 : -1) : dx / d;
+        const ny = d === 0 ? 0 : dy / d;
+        const overlap = (min - d) / 2;
         a.x -= nx * overlap; a.y -= ny * overlap;
         c.x += nx * overlap; c.y += ny * overlap;
         const rel = (a.vx - c.vx) * nx + (a.vy - c.vy) * ny;
