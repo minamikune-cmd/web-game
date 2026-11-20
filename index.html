@@ -1,0 +1,64 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="theme-color" content="#101713"><meta name="description" content="轻量、即开即玩的 Canvas 2D 台球小游戏。">
+<title>GREEN FELT · 迷你台球</title>
+<style>
+:root{color-scheme:dark;--bg:#101713;--panel:#18231d;--muted:#91a397;--line:#2b3b31;--gold:#e6bd72;--felt:#176744}
+*{box-sizing:border-box}body{margin:0;min-height:100vh;background:radial-gradient(ellipse at 50% -20%,#263d30 0,transparent 55%),var(--bg);color:#f1f3ed;font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",sans-serif}
+.shell{max-width:1160px;margin:auto;padding:28px 24px 34px}.top{display:flex;align-items:center;justify-content:space-between;margin-bottom:24px}.brand{display:flex;align-items:center;gap:12px}.mark{width:38px;height:38px;border:1px solid #54735e;border-radius:50%;display:grid;place-items:center;color:var(--gold);font-size:20px}.eyebrow{font-size:10px;letter-spacing:.24em;color:var(--gold);font-weight:800}.brand h1{font-size:16px;letter-spacing:.12em;margin:3px 0 0}.status{border:1px solid var(--line);border-radius:30px;padding:8px 13px;color:#a9b8ac;font-size:11px;letter-spacing:.08em}.status i{display:inline-block;width:7px;height:7px;background:#70c995;border-radius:50%;margin-right:7px;box-shadow:0 0 10px #70c995}
+.hero{display:flex;justify-content:space-between;align-items:end;margin:0 2px 17px}.hero h2{font-size:clamp(25px,4vw,38px);letter-spacing:-.04em;margin:0 0 5px;font-weight:650}.hero p{margin:0;color:var(--muted);font-size:13px}.stats{display:flex;gap:24px}.stat{text-align:right}.stat small{display:block;color:#84958a;font-size:10px;letter-spacing:.15em;margin-bottom:4px}.stat strong{font-size:23px;font-weight:600;font-variant-numeric:tabular-nums}
+.table-wrap{background:linear-gradient(145deg,#1b2820,#121a15);border:1px solid #304237;border-radius:17px;padding:clamp(9px,2vw,17px);box-shadow:0 25px 70px #0007,inset 0 1px #ffffff0a}.table-frame{position:relative;padding:clamp(8px,1.5vw,13px);background:linear-gradient(135deg,#805b35,#4d3524 55%,#785536);border-radius:10px;box-shadow:inset 0 0 0 2px #b88b55,inset 0 0 0 5px #362719,0 3px 8px #0008}.table-frame:before{content:"";position:absolute;inset:4px;border:1px solid #d0a56c55;border-radius:7px;pointer-events:none}.canvas-box{position:relative;overflow:hidden;border-radius:4px;background:#125b3c;aspect-ratio:1.9;box-shadow:inset 0 0 25px #001e12aa}.canvas-box canvas{display:block;width:100%;height:100%;touch-action:none;cursor:crosshair}
+.hint{display:flex;justify-content:space-between;gap:12px;color:#91a397;font-size:11px;padding:12px 3px 1px}.hint b{color:#d6c49d;font-weight:550}
+.bottom{display:grid;grid-template-columns:1fr auto;gap:14px;margin-top:17px;align-items:stretch}.tip,.controls{border:1px solid var(--line);background:#17221b;border-radius:12px;padding:15px 17px}.tip{display:flex;gap:12px;align-items:center}.tip-icon{width:32px;height:32px;flex:none;border-radius:9px;background:#263a2d;display:grid;place-items:center;color:var(--gold)}.tip strong{font-size:12px}.tip p{margin:4px 0 0;color:#91a397;font-size:11px;line-height:1.5}.controls{display:flex;gap:9px;align-items:center}.btn{border:1px solid #405447;background:#223128;color:#e6ece5;border-radius:8px;padding:10px 14px;font:600 12px inherit;cursor:pointer;transition:.18s}.btn:hover{border-color:#8ca68f;background:#2b4032}.btn.primary{background:var(--gold);color:#241b0e;border-color:var(--gold)}.btn.primary:hover{background:#f0ce8d}.btn:focus-visible{outline:2px solid var(--gold);outline-offset:3px}
+.footer{display:flex;justify-content:space-between;margin-top:18px;color:#64766a;font-size:10px;letter-spacing:.08em}
+@media(max-width:650px){.shell{padding:18px 12px 24px}.top{margin-bottom:19px}.hero{align-items:start;gap:12px}.stats{gap:12px}.stat strong{font-size:19px}.status{font-size:9px;padding:7px 9px}.bottom{grid-template-columns:1fr}.controls{justify-content:stretch}.controls .btn{flex:1}.hint{font-size:10px}.footer{font-size:9px}}
+</style>
+</head>
+<body>
+<main class="shell">
+<header class="top"><div class="brand"><div class="mark">♧</div><div><div class="eyebrow">GREEN FELT STUDIO</div><h1>MINI BILLIARDS</h1></div></div><div class="status"><i></i>READY TO PLAY</div></header>
+<section class="hero"><div><h2>一杆好球，尽在掌握。</h2><p>轻松瞄准，控制力度，清台挑战开始。</p></div><div class="stats"><div class="stat"><small>POTTED</small><strong id="potted">0 / 10</strong></div><div class="stat"><small>SHOTS</small><strong id="shots">0</strong></div></div></section>
+<section class="table-wrap"><div class="table-frame"><div class="canvas-box"><canvas id="game" aria-label="台球桌游戏区域，可拖动鼠标或手指瞄准并击球"></canvas></div></div><div class="hint"><span>⌖ <b>拖动瞄准</b> · 松开发射</span><span id="message">把目标球送入袋口</span></div></section>
+<section class="bottom"><div class="tip"><div class="tip-icon">✳</div><div><strong>HOW TO PLAY</strong><p>按住白球附近并向后拖动来蓄力，松开即可击球。角度与拖动距离决定方向和力度。</p></div></div><div class="controls"><button class="btn" id="sound" type="button">声音：关</button><button class="btn primary" id="reset" type="button">↻ 重新开局</button></div></section>
+<footer class="footer"><span>BUILT FOR THE LOVE OF THE GAME</span><span>CANVAS PHYSICS · NO INSTALL</span></footer>
+</main>
+<script>
+(()=>{
+const canvas=document.getElementById('game'),ctx=canvas.getContext('2d');
+const W=1000,H=526,R=12,friction=.991,wall=.82;
+const pockets=[[0,0],[W/2,0],[W,0],[0,H],[W/2,H],[W,H]];
+let balls=[],aim=null,drag=null,shots=0,potted=0,anim=0,last=0,sound=false,audio=null;
+const $=id=>document.getElementById(id);
+function rack(){balls=[{x:W*.27,y:H/2,vx:0,vy:0,r:R,color:'#f8f5e9',cue:true,active:true}];const colors=['#e7b84f','#3477b9','#b94a45','#8b58a7','#e57d37','#358c70','#d5d4cc','#d1a744','#3466a4','#b24b43'];let k=0;for(let row=0;row<4;row++)for(let col=0;col<=row;col++){balls.push({x:W*.69+row*22,y:H/2+(col-row/2)*25,vx:0,vy:0,r:R,color:colors[k++],active:true});}shots=0;potted=0;updateStats();$('message').textContent='把目标球送入袋口';}
+function updateStats(){$('potted').textContent=potted+' / 10';$('shots').textContent=shots;}
+function resize(){const dpr=Math.min(devicePixelRatio||1,2),rect=canvas.getBoundingClientRect();canvas.width=Math.round(rect.width*dpr);canvas.height=Math.round(rect.height*dpr);ctx.setTransform(canvas.width/W,0,0,canvas.height/H,0,0);draw();}
+function pocketed(x,y){for(const [px,py] of pockets)if(Math.hypot(x-px,y-py)<28)return true;return false;}
+function moving(){return balls.some(b=>b.active&&Math.hypot(b.vx,b.vy)>.08);}
+function hitSound(power){if(!sound)return;try{audio??=new(window.AudioContext||window.webkitAudioContext)();let o=audio.createOscillator(),g=audio.createGain();o.connect(g);g.connect(audio.destination);o.frequency.value=power>4?145:95;g.gain.setValueAtTime(.045,audio.currentTime);g.gain.exponentialRampToValueAtTime(.001,audio.currentTime+.07);o.start();o.stop(audio.currentTime+.07)}catch{}}
+function step(){for(const b of balls){if(!b.active)continue;b.x+=b.vx;b.y+=b.vy;b.vx*=friction;b.vy*=friction;if(Math.abs(b.vx)<.025)b.vx=0;if(Math.abs(b.vy)<.025)b.vy=0;
+if(b.x<R+2){b.x=R+2;b.vx=Math.abs(b.vx)*wall}if(b.x>W-R-2){b.x=W-R-2;b.vx=-Math.abs(b.vx)*wall}if(b.y<R+2){b.y=R+2;b.vy=Math.abs(b.vy)*wall}if(b.y>H-R-2){b.y=H-R-2;b.vy=-Math.abs(b.vy)*wall}
+if(pocketed(b.x,b.y)){b.active=false;if(!b.cue){potted++;updateStats();}else{setTimeout(()=>{if(!balls[0].active){balls[0].x=W*.27;balls[0].y=H/2;balls[0].vx=balls[0].vy=0;balls[0].active=true;}},550);$('message').textContent='白球落袋，重新摆球';}}
+}
+for(let i=0;i<balls.length;i++)for(let j=i+1;j<balls.length;j++){const a=balls[i],b=balls[j];if(!a.active||!b.active)continue;let dx=b.x-a.x,dy=b.y-a.y,d=Math.hypot(dx,dy),min=a.r+b.r;if(d<min&&d>0){let nx=dx/d,ny=dy/d,overlap=(min-d)/2;a.x-=nx*overlap;a.y-=ny*overlap;b.x+=nx*overlap;b.y+=ny*overlap;let rel=(a.vx-b.vx)*nx+(a.vy-b.vy)*ny;if(rel>0){let impulse=rel*.96;a.vx-=impulse*nx;a.vy-=impulse*ny;b.vx+=impulse*nx;b.vy+=impulse*ny;}}}
+}
+function draw(){ctx.clearRect(0,0,W,H);let g=ctx.createLinearGradient(0,0,W,H);g.addColorStop(0,'#176b47');g.addColorStop(1,'#105637');ctx.fillStyle=g;ctx.fillRect(0,0,W,H);
+ctx.strokeStyle='#ffffff12';ctx.lineWidth=1;for(let x=30;x<W;x+=40){ctx.beginPath();ctx.moveTo(x,0);ctx.lineTo(x,H);ctx.stroke();}
+ctx.strokeStyle='#d8c18a77';ctx.lineWidth=2;ctx.strokeRect(13,13,W-26,H-26);ctx.beginPath();ctx.moveTo(W*.25,13);ctx.lineTo(W*.25,H-13);ctx.stroke();ctx.beginPath();ctx.arc(W*.25,H/2,75,-Math.PI/2,Math.PI/2);ctx.stroke();
+for(const [x,y] of pockets){let pg=ctx.createRadialGradient(x,y,3,x,y,29);pg.addColorStop(0,'#030806');pg.addColorStop(.75,'#050907');pg.addColorStop(1,'#92704b');ctx.fillStyle=pg;ctx.beginPath();ctx.arc(x,y,27,0,Math.PI*2);ctx.fill();}
+for(const b of balls)if(b.active){ctx.save();ctx.shadowColor='#00190e99';ctx.shadowBlur=9;ctx.shadowOffsetY=4;let bg=ctx.createRadialGradient(b.x-b.r*.4,b.y-b.r*.45,1,b.x,b.y,b.r*1.2);bg.addColorStop(0,'#ffffff');bg.addColorStop(.3,b.color);bg.addColorStop(1,b.cue?'#aaa99e':'#17251d');ctx.fillStyle=bg;ctx.beginPath();ctx.arc(b.x,b.y,b.r,0,Math.PI*2);ctx.fill();ctx.restore();ctx.fillStyle='#ffffffcc';ctx.beginPath();ctx.arc(b.x-b.r*.34,b.y-b.r*.35,2.5,0,Math.PI*2);ctx.fill();}
+if(aim&&balls[0].active&&!moving()){const c=balls[0],dx=c.x-aim.x,dy=c.y-aim.y,len=Math.hypot(dx,dy),power=Math.min(len,150);if(len>1){let nx=dx/len,ny=dy/len;ctx.setLineDash([8,8]);ctx.strokeStyle='#fff4c5bb';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(c.x+nx*17,c.y+ny*17);ctx.lineTo(c.x+nx*260,c.y+ny*260);ctx.stroke();ctx.setLineDash([]);ctx.strokeStyle='#e6bd72';ctx.lineWidth=3;ctx.beginPath();ctx.moveTo(c.x-nx*(22+power*.35),c.y-ny*(22+power*.35));ctx.lineTo(c.x-nx*22,c.y-ny*22);ctx.stroke();ctx.fillStyle='#e6bd72';ctx.beginPath();ctx.arc(c.x-nx*(22+power*.35),c.y-ny*(22+power*.35),4,0,Math.PI*2);ctx.fill();}}
+if(potted>=10){ctx.fillStyle='#07130dcc';ctx.fillRect(0,0,W,H);ctx.textAlign='center';ctx.fillStyle='#f2d18f';ctx.font='bold 42px system-ui';ctx.fillText('CLEARED!',W/2,H/2-8);ctx.fillStyle='#fff';ctx.font='18px system-ui';ctx.fillText('漂亮的一局 · 再来一盘？',W/2,H/2+30);}
+}
+function loop(t){let dt=Math.min((t-last)/16.67||1,2);last=t;if(moving()){for(let n=0;n<dt;n++)step();}draw();requestAnimationFrame(loop);}
+function point(e){const r=canvas.getBoundingClientRect();return{x:(e.clientX-r.left)/r.width*W,y:(e.clientY-r.top)/r.height*H};}
+canvas.addEventListener('pointerdown',e=>{if(moving()||!balls[0].active||potted>=10)return;const p=point(e),c=balls[0];if(Math.hypot(p.x-c.x,p.y-c.y)<65){drag=p;aim=p;canvas.setPointerCapture(e.pointerId);}});
+canvas.addEventListener('pointermove',e=>{if(drag)aim=point(e);});
+canvas.addEventListener('pointerup',e=>{if(!drag)return;const p=point(e),c=balls[0],dx=c.x-p.x,dy=c.y-p.y,len=Math.hypot(dx,dy);if(len>5){const power=Math.min(len,150)*.105;c.vx=dx/Math.max(len,1)*power;c.vy=dy/Math.max(len,1)*power;shots++;updateStats();$('message').textContent='好球！继续瞄准下一杆';hitSound(power);}drag=null;aim=null;});
+canvas.addEventListener('pointercancel',()=>{drag=null;aim=null;});
+$('reset').addEventListener('click',rack);$('sound').addEventListener('click',()=>{sound=!sound;$('sound').textContent='声音：'+(sound?'开':'关');});
+window.addEventListener('resize',resize);rack();resize();requestAnimationFrame(loop);
+})();
+</script>
+</body></html>
