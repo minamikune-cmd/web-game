@@ -89,12 +89,15 @@
     const Ph = B.Physics, Rules = B.Rules;
     const snap = balls.map(b => ({ x: b.x, y: b.y, vx: b.vx, vy: b.vy, active: b.active }));
     const matchCopy = JSON.parse(JSON.stringify(match));
-    Ph.strike(balls[0], shot.angle, shot.power);
-    const ev = Ph.newEvents();
-    Ph.simulateUntilRest(balls, ev, 2400);
-    const foul = Rules.resolveShot(matchCopy, balls, ev).foul;
-    balls.forEach((b, i) => Object.assign(b, snap[i]));
-    return foul;
+    try {
+      Ph.strike(balls[0], shot.angle, shot.power);
+      const ev = Ph.newEvents();
+      Ph.simulateUntilRest(balls, ev, 2400);
+      return Rules.resolveShot(matchCopy, balls, ev).foul;
+    } finally {
+      // Preview simulation must never leak temporary motion into the live match.
+      balls.forEach((b, i) => Object.assign(b, snap[i]));
+    }
   }
 
   /* 无噪声地枚举全部可行进球线路（AI 摆球与测试也复用） */
