@@ -144,6 +144,16 @@ function scriptedMatch() {
 
 section('规则：黑8胜负');
 {
+  // 分组前的开放球桌不能以黑8作为首碰目标
+  const { balls, match } = scriptedMatch();
+  const ev = Ph.newEvents();
+  ev.steps.push({ collisions: [{ a: 0, b: 8, power: 5 }], rails: [{ ball: 8, power: 1 }], potted: [] });
+  ev.firstContact = 8; ev.firstContactStep = 0;
+  const r = Rules.resolveShot(match, balls, ev);
+  ok(!!r.foul && match.current === 1 && match.ballInHand,
+    '开放球桌首碰黑8 → 犯规并交给对手手中球');
+}
+{
   // 过早打黑8 → 判负（用合成事件精确构造：白球首碰8号且8号落袋，本组球未清）
   const { balls, match } = scriptedMatch();
   match.players[0].group = 'solid'; match.players[1].group = 'stripe';
